@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Free AI Career Score — Apex by BleuDreams™</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&family=Instrument+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#05070d;--surface:#0c1018;--surface2:#121820;
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.14);
+  --text:#e0e6f5;--muted:#4d5a72;
+  --accent:#7c3aed;--accent2:#a78bfa;--accent3:#c4b5fd;
+  --green:#10b981;--gold:#e8c84a;
+}
+body{background:var(--bg);color:var(--text);font-family:'Instrument Sans',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+
+.wrap{width:100%;max-width:560px}
+
+/* HEADER */
+.header{text-align:center;margin-bottom:32px}
+.brand{display:inline-flex;align-items:center;gap:8px;margin-bottom:20px}
+.brand-dot{width:8px;height:8px;background:var(--accent2);border-radius:50%}
+.brand-name{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent2)}
+.free-badge{
+  display:inline-block;background:rgba(16,185,129,0.12);
+  color:var(--green);border:1px solid rgba(16,185,129,0.3);
+  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.2em;
+  text-transform:uppercase;padding:5px 14px;border-radius:20px;margin-bottom:16px;
+}
+h1{font-family:'Syne',sans-serif;font-weight:900;font-size:clamp(32px,7vw,52px);line-height:0.95;letter-spacing:-0.02em;margin-bottom:12px}
+h1 span{color:var(--accent2)}
+.sub{font-size:15px;font-weight:300;color:var(--muted);line-height:1.7;max-width:420px;margin:0 auto}
+.sub strong{color:var(--text);font-weight:500}
+
+/* CARD */
+.card{background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:28px;margin-bottom:16px}
+.card-step{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent2);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.card-step::before{content:'';width:20px;height:1px;background:var(--accent)}
+.card-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;margin-bottom:4px}
+.card-sub{font-size:13px;color:var(--muted);margin-bottom:16px;font-weight:300}
+
+/* FORMS */
+.fg{margin-bottom:12px}
+.fl{display:block;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.fi,.ft,.fs{width:100%;background:var(--surface2);border:1.5px solid var(--border2);border-radius:10px;padding:11px 14px;color:var(--text);font-family:'Instrument Sans',sans-serif;font-size:14px;font-weight:400;outline:none;transition:border-color 0.2s}
+.fi:focus,.ft:focus,.fs:focus{border-color:var(--accent)}
+.ft{resize:vertical;min-height:90px;line-height:1.6}
+.fs option{background:var(--surface2)}
+
+/* BUTTONS */
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;border-radius:10px;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer;border:none;letter-spacing:0.03em;transition:all 0.2s}
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
+.btn-primary:hover{opacity:0.88;transform:translateY(-1px)}
+.btn:disabled{opacity:0.35;cursor:not-allowed;transform:none!important}
+
+/* AI RESULT */
+.result-wrap{display:none;animation:fadeIn 0.4s ease}
+.result-wrap.show{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.score-display{
+  text-align:center;padding:28px 20px;
+  background:linear-gradient(135deg,rgba(124,58,237,0.08),rgba(167,139,250,0.05));
+  border:1px solid rgba(124,58,237,0.2);border-radius:14px;margin-bottom:16px;
+}
+.score-num{font-family:'Syne',sans-serif;font-weight:900;font-size:72px;line-height:1;color:var(--accent2);margin-bottom:4px}
+.score-label{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted)}
+.score-bar-wrap{width:200px;height:8px;background:rgba(255,255,255,0.06);border-radius:4px;margin:12px auto 0;overflow:hidden}
+.score-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:4px;transition:width 1.2s ease;width:0%}
+
+.ai-result{
+  background:var(--surface2);border:1px solid var(--border2);border-left:3px solid var(--accent);
+  border-radius:10px;padding:16px 18px;font-size:14px;line-height:1.8;
+  white-space:pre-wrap;color:var(--text);font-weight:300;
+}
+
+/* EMAIL CAPTURE */
+.email-capture{
+  background:linear-gradient(135deg,rgba(16,185,129,0.07),rgba(16,185,129,0.03));
+  border:1px solid rgba(16,185,129,0.25);border-radius:14px;
+  padding:24px;margin-top:16px;text-align:center;
+}
+.ec-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:6px}
+.ec-sub{font-size:13px;color:var(--muted);font-weight:300;margin-bottom:16px;line-height:1.6}
+.email-row{display:flex;gap:8px}
+.email-row .fi{border-radius:8px}
+.btn-email{
+  padding:11px 18px;background:var(--green);color:#fff;
+  font-family:'Syne',sans-serif;font-size:13px;font-weight:700;
+  cursor:pointer;border:none;border-radius:8px;white-space:nowrap;
+  transition:all 0.2s;
+}
+.btn-email:hover{background:#059669}
+.btn-email:disabled{opacity:0.4;cursor:not-allowed}
+
+.upsell{
+  background:var(--surface);border:1px solid var(--border2);border-radius:14px;
+  padding:20px;margin-top:12px;text-align:center;
+}
+.upsell-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:6px}
+.upsell-sub{font-size:13px;color:var(--muted);font-weight:300;margin-bottom:14px;line-height:1.6}
+.btn-upsell{
+  display:inline-block;background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#fff;padding:12px 28px;border-radius:8px;
+  font-family:'Syne',sans-serif;font-size:13px;font-weight:700;
+  text-decoration:none;cursor:pointer;border:none;transition:all 0.2s;
+}
+.btn-upsell:hover{opacity:0.88;transform:translateY(-1px)}
+
+/* LOADING */
+.ld{display:inline-flex;gap:3px;align-items:center}
+.ld span{width:4px;height:4px;background:currentColor;border-radius:50%;animation:lb 1.2s infinite}
+.ld span:nth-child(2){animation-delay:.2s}
+.ld span:nth-child(3){animation-delay:.4s}
+@keyframes lb{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+
+/* FOOTER */
+.footer{text-align:center;margin-top:24px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:0.1em}
+.footer a{color:var(--accent2);text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="brand"><div class="brand-dot"></div><div class="brand-name">Apex by BleuDreams™</div></div>
+    <div class="free-badge">✦ 100% Free — No Credit Card</div>
+    <h1>Your Free<br><span>AI Career</span><br>Score</h1>
+    <p class="sub">Paste any job description + your background. Get an <strong>instant readiness score out of 100</strong> plus exactly what's holding you back.</p>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="card" id="step1">
+    <div class="card-step">Step 1 of 2</div>
+    <div class="card-title">Paste the Job You Want</div>
+    <div class="card-sub">Copy a job posting you're targeting and paste it below</div>
+    <div class="fg">
+      <label class="fl">Target Job Description</label>
+      <textarea class="ft" id="jobDesc" style="min-height:120px" placeholder="Paste the job description here — the more detail the better..."></textarea>
+    </div>
+    <div class="fg">
+      <label class="fl">Your Background (brief)</label>
+      <textarea class="ft" id="background" placeholder="e.g. 5 years in customer service, managed a team of 8, bilingual English/Spanish, used Salesforce..."></textarea>
+    </div>
+    <div class="fg">
+      <label class="fl">Current Job Title</label>
+      <input class="fi" id="currentTitle" placeholder="e.g. Dispatcher, Customer Service Rep, Coordinator">
+    </div>
+    <button class="btn btn-primary" id="scoreBtn" onclick="getScore()">
+      ⚡ Get My Free Career Score
+    </button>
+  </div>
+
+  <!-- RESULT -->
+  <div class="result-wrap" id="resultWrap">
+    <div class="score-display">
+      <div class="score-num" id="scoreNum">—</div>
+      <div class="score-label">Career Readiness Score</div>
+      <div class="score-bar-wrap"><div class="score-bar" id="scoreBar"></div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-step">Your Analysis</div>
+      <div class="card-title">Here's what the AI found</div>
+      <div class="card-sub">Based on your background vs. the job requirements</div>
+      <div class="ai-result" id="analysisText"></div>
+    </div>
+
+    <!-- EMAIL CAPTURE -->
+    <div class="email-capture">
+      <div class="ec-title">📬 Want this sent to your email?</div>
+      <div class="ec-sub">Enter your email and we'll send your full Career Score report + a personalized action plan to close your gaps.</div>
+      <div class="email-row">
+        <input class="fi" id="userEmail" type="email" placeholder="your@email.com">
+        <button class="btn-email" id="emailBtn" onclick="captureEmail()">Send It →</button>
+      </div>
+      <div id="emailConfirm" style="display:none;margin-top:10px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--green);letter-spacing:0.1em">✓ GOT IT — CHECK YOUR INBOX!</div>
+    </div>
+
+    <!-- UPSELL -->
+    <div class="upsell">
+      <div class="upsell-title">Want your full roadmap?</div>
+      <div class="upsell-sub">Your Career Score is just the start. Inside Apex you get a week-by-week skill roadmap, AI resume builder, interview coach, and salary negotiation script.</div>
+      <button class="btn-upsell" onclick="window.location.href='index.html'">Try Apex Free for 7 Days →</button>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-top:10px;letter-spacing:0.1em">No credit card required · Cancel anytime</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <a href="index.html">Apex by BleuDreams™</a> · Free Career Score Tool · 2026
+  </div>
+</div>
+
+<script>
+async function getScore() {
+  const jd = document.getElementById('jobDesc').value.trim();
+  const bg = document.getElementById('background').value.trim();
+  const title = document.getElementById('currentTitle').value.trim();
+  if (!jd && !bg) { alert('Please fill in at least the job description or your background.'); return; }
+
+  const btn = document.getElementById('scoreBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="ld"><span></span><span></span><span></span></span> Analyzing your profile...';
+
+  const sys = `You are Apex AI, a career analyst. Analyze a candidate's fit for a job and give a Career Readiness Score. Be honest, specific, and encouraging. Format your response EXACTLY like this:
+
+SCORE: [number between 35-95]/100
+
+✅ YOUR STRENGTHS (3-4 bullet points of what matches well):
+• [strength]
+
+⚠️ CRITICAL GAPS (2-3 specific skills or experiences missing):
+• [gap]
+
+🎯 YOUR 3 QUICK WINS (specific things to do in the next 2 weeks):
+1. [action]
+2. [action]  
+3. [action]
+
+💬 VERDICT: [2-sentence honest assessment of their chances and what to focus on]
+
+Be specific to the actual job and background. If they mention being bilingual, highlight it strongly. Give real scores — not everyone gets 85+.`;
+
+  const msg = `Job Description:\n${jd || 'Not provided'}\n\nMy Background:\n${bg || 'Not provided'}\n\nCurrent Title: ${title || 'Not provided'}`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 800,
+        system: sys,
+        messages: [{ role: 'user', content: msg }]
+      })
+    });
+    const data = await res.json();
+    const text = data.content.map(b => b.text || '').join('');
+
+    // extract score
+    const match = text.match(/SCORE:\s*(\d+)/);
+    const score = match ? parseInt(match[1]) : 65;
+
+    // show results
+    document.getElementById('scoreNum').textContent = score;
+    document.getElementById('scoreBar').style.width = score + '%';
+    document.getElementById('analysisText').textContent = text.replace(/SCORE:\s*\d+\/100\s*/, '').trim();
+    document.getElementById('resultWrap').classList.add('show');
+    document.getElementById('resultWrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  } catch (e) {
+    document.getElementById('analysisText').textContent = 'Error connecting to AI. Please try again.';
+    document.getElementById('resultWrap').classList.add('show');
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '⚡ Get My Free Career Score';
+}
+
+function captureEmail() {
+  const email = document.getElementById('userEmail').value.trim();
+  if (!email || !email.includes('@')) { alert('Please enter a valid email address.'); return; }
+  document.getElementById('emailBtn').disabled = true;
+  document.getElementById('emailBtn').textContent = '✓';
+  document.getElementById('emailConfirm').style.display = 'block';
+  // In production: send to your email list (Mailchimp, ConvertKit, etc.)
+  // For now saves to console — replace with your email service webhook
+  console.log('Email captured:', email);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apex — AI Career Acceleration</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://js.stripe.com/v3/"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0e0e0e;
+  --paper:#faf8f4;
+  --warm:#f0ebe0;
+  --gold:#b8972a;
+  --gold2:#e8c84a;
+  --dark:#1a1a18;
+  --red:#c0392b;
+  --green:#1a6b45;
+  --muted:#7a7568;
+  --border:#e0dbd0;
+}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:'Outfit',sans-serif;overflow-x:hidden}
+
+/* ── NOISE ── */
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:999;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  opacity:0.5;
+}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  padding:18px 6vw;
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(250,248,244,0.92);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+}
+.nav-logo{
+  font-family:'Playfair Display',serif;font-weight:900;font-size:22px;
+  letter-spacing:-0.02em;color:var(--ink);
+  text-decoration:none;
+}
+.nav-logo span{color:var(--gold)}
+.nav-links{display:flex;align-items:center;gap:32px}
+.nav-links a{font-size:14px;color:var(--muted);text-decoration:none;font-weight:500;transition:color 0.2s}
+.nav-links a:hover{color:var(--ink)}
+.nav-cta{
+  background:var(--ink);color:var(--paper);
+  padding:9px 22px;font-size:13px;font-weight:600;
+  text-decoration:none;letter-spacing:0.03em;
+  transition:all 0.2s;
+}
+.nav-cta:hover{background:var(--dark);transform:translateY(-1px)}
+
+/* ── HERO ── */
+.hero{
+  min-height:100vh;
+  display:flex;flex-direction:column;
+  justify-content:center;
+  padding:120px 6vw 80px;
+  position:relative;overflow:hidden;
+}
+.hero-bg{
+  position:absolute;top:0;right:0;
+  width:55%;height:100%;
+  background:linear-gradient(135deg,var(--warm) 0%,var(--border) 100%);
+  clip-path:polygon(15% 0,100% 0,100% 100%,0 100%);
+  z-index:0;
+}
+.hero-bg::before{
+  content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(
+    45deg,transparent,transparent 40px,
+    rgba(184,151,42,0.06) 40px,rgba(184,151,42,0.06) 41px
+  );
+}
+.hero-content{position:relative;z-index:1;max-width:640px}
+.hero-tag{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  letter-spacing:0.2em;text-transform:uppercase;
+  color:var(--gold);border:1px solid rgba(184,151,42,0.3);
+  padding:6px 14px;margin-bottom:32px;
+  background:rgba(184,151,42,0.06);
+  animation:fadeUp 0.7s 0.1s both;
+}
+.hero-tag-dot{width:6px;height:6px;background:var(--gold2);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+
+.hero-title{
+  font-family:'Playfair Display',serif;
+  font-weight:900;
+  font-size:clamp(48px,7vw,88px);
+  line-height:0.95;
+  letter-spacing:-0.03em;
+  margin-bottom:28px;
+  animation:fadeUp 0.8s 0.2s both;
+}
+.hero-title em{font-style:italic;color:var(--gold)}
+.hero-title .line2{color:var(--muted)}
+
+.hero-body{
+  font-size:17px;line-height:1.75;color:var(--muted);
+  max-width:480px;margin-bottom:44px;font-weight:300;
+  animation:fadeUp 0.8s 0.35s both;
+}
+.hero-body strong{color:var(--ink);font-weight:600}
+
+.hero-actions{display:flex;align-items:center;gap:16px;flex-wrap:wrap;animation:fadeUp 0.8s 0.5s both}
+.btn-hero{
+  background:var(--ink);color:var(--paper);
+  padding:16px 36px;font-size:15px;font-weight:600;
+  cursor:pointer;border:none;letter-spacing:0.02em;
+  transition:all 0.2s;font-family:'Outfit',sans-serif;
+}
+.btn-hero:hover{background:var(--dark);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.15)}
+.btn-ghost-hero{
+  padding:16px 28px;font-size:14px;color:var(--muted);
+  background:transparent;border:1px solid var(--border);
+  cursor:pointer;font-family:'Outfit',sans-serif;font-weight:500;
+  transition:all 0.2s;
+}
+.btn-ghost-hero:hover{border-color:var(--ink);color:var(--ink)}
+
+.hero-proof{
+  display:flex;align-items:center;gap:16px;
+  margin-top:40px;animation:fadeUp 0.8s 0.65s both;
+}
+.hero-proof-faces{display:flex}
+.face{
+  width:32px;height:32px;border-radius:50%;
+  background:var(--warm);border:2px solid var(--paper);
+  margin-left:-8px;font-size:14px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Playfair Display',serif;font-weight:700;
+  color:var(--ink);
+}
+.face:first-child{margin-left:0}
+.hero-proof-text{font-size:13px;color:var(--muted);line-height:1.5}
+.hero-proof-text strong{color:var(--ink);display:block;font-size:14px}
+
+/* ── LOGOS ── */
+.logos-bar{
+  padding:32px 6vw;
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;gap:48px;
+  flex-wrap:wrap;background:var(--warm);
+}
+.logos-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);width:100%;text-align:center;margin-bottom:8px}
+.logo-pill{
+  font-family:'JetBrains Mono',monospace;font-size:12px;
+  color:var(--muted);letter-spacing:0.05em;font-weight:500;
+}
+
+/* ── PROBLEM ── */
+.problem{padding:100px 6vw;background:var(--ink);color:var(--paper)}
+.section-eyebrow{
+  font-family:'JetBrains Mono',monospace;font-size:10px;
+  letter-spacing:0.3em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:24px;
+}
+.problem-title{
+  font-family:'Playfair Display',serif;font-weight:900;
+  font-size:clamp(36px,5vw,60px);line-height:1.05;
+  letter-spacing:-0.02em;margin-bottom:48px;max-width:640px;
+}
+.problem-title em{font-style:italic;color:rgba(255,255,255,0.4)}
+.problem-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px}
+.problem-card{
+  border:1px solid rgba(255,255,255,0.08);
+  padding:28px;background:rgba(255,255,255,0.03);
+  transition:border-color 0.3s;
+}
+.problem-card:hover{border-color:rgba(184,151,42,0.4)}
+.problem-icon{font-size:28px;margin-bottom:14px}
+.problem-card h3{font-family:'Playfair Display',serif;font-size:18px;margin-bottom:8px}
+.problem-card p{font-size:14px;color:rgba(255,255,255,0.5);line-height:1.7}
+
+/* ── FEATURES ── */
+.features{padding:100px 6vw}
+.features-title{
+  font-family:'Playfair Display',serif;font-weight:900;
+  font-size:clamp(36px,5vw,60px);line-height:1.05;
+  letter-spacing:-0.02em;margin-bottom:16px;
+}
+.features-sub{font-size:17px;color:var(--muted);margin-bottom:64px;max-width:520px;font-weight:300}
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:2px;background:var(--border)}
+.feature-cell{
+  background:var(--paper);padding:36px 32px;
+  transition:background 0.2s;
+}
+.feature-cell:hover{background:var(--warm)}
+.feature-num{
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  color:var(--gold);letter-spacing:0.2em;margin-bottom:16px;
+}
+.feature-cell h3{font-family:'Playfair Display',serif;font-size:20px;margin-bottom:10px;font-weight:700}
+.feature-cell p{font-size:14px;color:var(--muted);line-height:1.75}
+
+/* ── PRICING ── */
+.pricing{padding:100px 6vw;background:var(--warm)}
+.pricing-title{
+  font-family:'Playfair Display',serif;font-weight:900;
+  font-size:clamp(36px,5vw,56px);line-height:1.05;
+  letter-spacing:-0.02em;margin-bottom:16px;text-align:center;
+}
+.pricing-sub{font-size:16px;color:var(--muted);text-align:center;margin-bottom:64px;font-weight:300}
+
+.pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;max-width:960px;margin:0 auto}
+.plan{
+  background:var(--paper);border:1px solid var(--border);
+  padding:36px 32px;position:relative;
+  transition:transform 0.2s,box-shadow 0.2s;
+}
+.plan:hover{transform:translateY(-4px);box-shadow:0 20px 40px rgba(0,0,0,0.08)}
+.plan.featured{
+  background:var(--ink);color:var(--paper);
+  border-color:var(--ink);
+}
+.plan-badge{
+  position:absolute;top:-12px;left:50%;transform:translateX(-50%);
+  background:var(--gold2);color:var(--ink);
+  font-family:'JetBrains Mono',monospace;font-size:9px;
+  font-weight:600;letter-spacing:0.2em;text-transform:uppercase;
+  padding:4px 14px;white-space:nowrap;
+}
+.plan-name{
+  font-family:'Playfair Display',serif;font-size:13px;font-weight:700;
+  letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:16px;
+}
+.plan.featured .plan-name{color:rgba(255,255,255,0.5)}
+.plan-price{
+  font-family:'Playfair Display',serif;font-weight:900;
+  font-size:52px;line-height:1;letter-spacing:-0.03em;margin-bottom:4px;
+}
+.plan-period{font-size:13px;color:var(--muted);margin-bottom:28px}
+.plan.featured .plan-period{color:rgba(255,255,255,0.4)}
+.plan-features{list-style:none;margin-bottom:32px}
+.plan-features li{
+  font-size:14px;padding:8px 0;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;color:var(--muted);
+  line-height:1.5;
+}
+.plan.featured .plan-features li{border-color:rgba(255,255,255,0.1);color:rgba(255,255,255,0.7)}
+.plan-features li::before{content:'✓';color:var(--green);font-weight:700;font-size:12px;min-width:16px}
+.plan.featured .plan-features li::before{color:var(--gold2)}
+.plan-features li:last-child{border:none}
+
+.btn-plan{
+  width:100%;padding:14px;
+  font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;
+  cursor:pointer;border:none;letter-spacing:0.03em;
+  transition:all 0.2s;
+}
+.btn-plan.dark{background:var(--ink);color:var(--paper)}
+.btn-plan.dark:hover{background:var(--dark)}
+.btn-plan.light{background:var(--paper);color:var(--ink)}
+.btn-plan.light:hover{background:var(--warm)}
+.btn-plan.outline{background:transparent;border:1px solid var(--border);color:var(--muted)}
+.btn-plan.outline:hover{border-color:var(--ink);color:var(--ink)}
+
+.guarantee{
+  text-align:center;margin-top:40px;
+  font-size:13px;color:var(--muted);
+}
+.guarantee strong{color:var(--ink)}
+
+/* ── TESTIMONIALS ── */
+.testimonials{padding:100px 6vw;background:var(--paper)}
+.test-title{
+  font-family:'Playfair Display',serif;font-weight:900;
+  font-size:clamp(32px,4vw,48px);line-height:1.1;
+  letter-spacing:-0.02em;margin-bottom:56px;
+}
+.test-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px}
+.testimonial{
+  border:1px solid var(--border);padding:28px;
+  background:var(--warm);position:relative;
+}
+.test-quote{
+  font-family:'Playfair Display',serif;font-style:italic;
+  font-size:16px;line-height:1.7;color:var(--ink);margin-bottom:20px;
+}
+.test-quote::before{
+  content:'"';font-size:48px;color:var(--gold);line-height:0;
+  vertical-align:-16px;margin-right:4px;font-family:'Playfair Display',serif;
+}
+.test-author{display:flex;align-items:center;gap:12px}
+.test-avatar{
+  width:40px;height:40px;border-radius:50%;
+  background:var(--ink);color:var(--paper);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Playfair Display',serif;font-weight:700;font-size:16px;
+}
+.test-name{font-weight:600;font-size:14px}
+.test-role{font-size:12px;color:var(--muted)}
+.test-stars{color:var(--gold2);font-size:12px;margin-bottom:4px}
+
+/* ── FAQ ── */
+.faq{padding:80px 6vw;background:var(--warm)}
+.faq-title{font-family:'Playfair Display',serif;font-weight:900;font-size:clamp(28px,3.5vw,44px);letter-spacing:-0.02em;margin-bottom:40px}
+.faq-item{border-bottom:1px solid var(--border);padding:20px 0;cursor:pointer}
+.faq-q{font-weight:600;font-size:15px;display:flex;justify-content:space-between;align-items:center;gap:16px}
+.faq-a{font-size:14px;color:var(--muted);line-height:1.75;margin-top:12px;display:none}
+.faq-a.open{display:block;animation:fadeUp 0.3s ease}
+.faq-arrow{font-size:18px;transition:transform 0.3s;color:var(--muted);min-width:20px;text-align:center}
+.faq-arrow.open{transform:rotate(45deg)}
+
+/* ── CTA FOOTER ── */
+.cta-footer{
+  padding:100px 6vw;background:var(--ink);
+  text-align:center;position:relative;overflow:hidden;
+}
+.cta-footer::before{
+  content:'APEX';
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  font-family:'Playfair Display',serif;font-weight:900;
+  font-size:280px;color:rgba(255,255,255,0.02);
+  letter-spacing:-0.05em;white-space:nowrap;pointer-events:none;
+}
+.cta-title{
+  font-family:'Playfair Display',serif;font-weight:900;
+  font-size:clamp(40px,6vw,72px);line-height:1;
+  letter-spacing:-0.03em;color:var(--paper);
+  margin-bottom:20px;position:relative;
+}
+.cta-title em{font-style:italic;color:var(--gold2)}
+.cta-body{font-size:17px;color:rgba(255,255,255,0.5);max-width:480px;margin:0 auto 44px;font-weight:300}
+.btn-cta-final{
+  background:var(--gold2);color:var(--ink);
+  padding:18px 48px;font-size:16px;font-weight:700;
+  cursor:pointer;border:none;font-family:'Outfit',sans-serif;
+  letter-spacing:0.03em;transition:all 0.2s;
+}
+.btn-cta-final:hover{background:#fff;transform:translateY(-2px)}
+
+/* ── FOOTER ── */
+footer{
+  padding:32px 6vw;background:var(--ink);
+  border-top:1px solid rgba(255,255,255,0.08);
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:16px;
+}
+footer p{font-size:12px;color:rgba(255,255,255,0.3)}
+.footer-links{display:flex;gap:20px}
+.footer-links a{font-size:12px;color:rgba(255,255,255,0.3);text-decoration:none}
+.footer-links a:hover{color:rgba(255,255,255,0.6)}
+
+/* ── MODAL ── */
+.modal-overlay{
+  position:fixed;inset:0;z-index:200;
+  background:rgba(14,14,14,0.85);backdrop-filter:blur(8px);
+  display:none;align-items:center;justify-content:center;padding:20px;
+}
+.modal-overlay.open{display:flex}
+.modal{
+  background:var(--paper);max-width:480px;width:100%;
+  padding:40px;position:relative;
+  animation:fadeUp 0.3s ease;
+}
+.modal-close{
+  position:absolute;top:16px;right:20px;
+  font-size:22px;cursor:pointer;color:var(--muted);background:none;border:none;
+  font-family:monospace;
+}
+.modal-title{font-family:'Playfair Display',serif;font-weight:900;font-size:26px;margin-bottom:6px}
+.modal-sub{font-size:14px;color:var(--muted);margin-bottom:28px}
+.form-group{margin-bottom:16px}
+.form-label{display:block;font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px}
+.form-input{
+  width:100%;border:1px solid var(--border);
+  padding:10px 14px;font-family:'Outfit',sans-serif;font-size:14px;
+  color:var(--ink);background:var(--paper);outline:none;
+  transition:border-color 0.2s;
+}
+.form-input:focus{border-color:var(--ink)}
+.stripe-element{
+  border:1px solid var(--border);padding:12px 14px;
+  background:var(--paper);margin-bottom:16px;
+  transition:border-color 0.2s;
+}
+.stripe-element.focused{border-color:var(--ink)}
+.btn-pay{
+  width:100%;padding:14px;background:var(--ink);color:var(--paper);
+  font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;
+  cursor:pointer;border:none;letter-spacing:0.03em;transition:all 0.2s;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+}
+.btn-pay:hover{background:var(--dark)}
+.btn-pay:disabled{opacity:0.5;cursor:not-allowed}
+.pay-security{font-size:11px;color:var(--muted);text-align:center;margin-top:10px}
+.pay-selected-plan{
+  background:var(--warm);border:1px solid var(--border);
+  padding:14px 16px;margin-bottom:20px;display:flex;
+  justify-content:space-between;align-items:center;
+}
+.pay-plan-name{font-weight:600;font-size:14px}
+.pay-plan-price{font-family:'Playfair Display',serif;font-weight:900;font-size:22px}
+.pay-note{font-size:11px;color:var(--muted);text-align:center;margin-top:12px;line-height:1.6}
+
+/* ── LOADING DOTS ── */
+.ld{display:inline-flex;gap:3px;align-items:center}
+.ld span{width:4px;height:4px;background:currentColor;border-radius:50%;animation:bounce 1.2s infinite}
+.ld span:nth-child(2){animation-delay:.2s}
+.ld span:nth-child(3){animation-delay:.4s}
+@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-4px)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── REVEAL ── */
+.reveal{opacity:0;transform:translateY(20px);transition:opacity 0.6s,transform 0.6s}
+.reveal.visible{opacity:1;transform:none}
+
+@media(max-width:600px){
+  .nav-links{display:none}
+  .hero-bg{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#">APE<span>X</span></a>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#faq">FAQ</a>
+  </div>
+  <a class="nav-cta" href="#pricing">Start Free Trial</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <div class="hero-tag"><div class="hero-tag-dot"></div>AI-Powered Career Platform</div>
+    <h1 class="hero-title">
+      Outpace<br>
+      <em>AI disruption.</em><br>
+      <span class="line2">Get paid more.</span>
+    </h1>
+    <p class="hero-body">
+      <strong>Apex gives you a personal AI career engine</strong> — gap analysis, skill roadmap, resume builder, interview coach, and salary negotiation in one platform. Built for professionals who refuse to fall behind.
+    </p>
+    <div class="hero-actions">
+      <button class="btn-hero" onclick="openCheckout('pro')">Start Free 7-Day Trial</button>
+      <button class="btn-ghost-hero" onclick="document.getElementById('features').scrollIntoView({behavior:'smooth'})">See How It Works</button>
+    </div>
+    <div class="hero-proof">
+      <div class="hero-proof-faces">
+        <div class="face">J</div><div class="face">M</div><div class="face">T</div><div class="face">R</div><div class="face">+</div>
+      </div>
+      <div class="hero-proof-text">
+        <strong>2,400+ professionals</strong>
+        Already using Apex to accelerate their careers
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LOGOS -->
+<div class="logos-bar">
+  <div class="logos-label">Professionals from these companies use Apex</div>
+  <span class="logo-pill">Amazon</span>
+  <span class="logo-pill">JP Morgan</span>
+  <span class="logo-pill">NYC Transit</span>
+  <span class="logo-pill">Uber</span>
+  <span class="logo-pill">FedEx</span>
+  <span class="logo-pill">Deloitte</span>
+</div>
+
+<!-- PROBLEM -->
+<section class="problem">
+  <div class="section-eyebrow">The Problem</div>
+  <h2 class="problem-title reveal">
+    The job market changed.<br>
+    <em>Most people haven't.</em>
+  </h2>
+  <div class="problem-grid">
+    <div class="problem-card reveal">
+      <div class="problem-icon">🤖</div>
+      <h3>AI Is Replacing Roles</h3>
+      <p>47% of current jobs are at high risk of automation in the next decade. Generic advice won't save you — a precise strategy will.</p>
+    </div>
+    <div class="problem-card reveal">
+      <div class="problem-icon">🗺️</div>
+      <h3>No Clear Path Forward</h3>
+      <p>You know you need to upskill, but there are 10,000 courses, certifications, and opinions. No one tells you exactly what YOU need.</p>
+    </div>
+    <div class="problem-card reveal">
+      <div class="problem-icon">💸</div>
+      <h3>Leaving Money on the Table</h3>
+      <p>The average professional is underpaid by $8,000–$22,000 a year because they don't know their market rate or how to negotiate it.</p>
+    </div>
+    <div class="problem-card reveal">
+      <div class="problem-icon">📄</div>
+      <h3>Resumes That Get Ignored</h3>
+      <p>75% of resumes are rejected by ATS software before a human ever reads them. Most people don't know how to write for both.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="section-eyebrow reveal">The Solution</div>
+  <h2 class="features-title reveal">Everything you need.<br>Nothing you don't.</h2>
+  <p class="features-sub reveal">Six AI-powered tools that work together to move your career forward, fast.</p>
+  <div class="features-grid reveal">
+    <div class="feature-cell">
+      <div class="feature-num">01 — Gap Analysis</div>
+      <h3>Know Exactly Where You Stand</h3>
+      <p>Paste any job description. Get an instant AI analysis of your strengths, critical gaps, and a readiness score. Stop guessing, start acting.</p>
+    </div>
+    <div class="feature-cell">
+      <div class="feature-num">02 — Skill Roadmap</div>
+      <h3>Your Personal 8-Week Plan</h3>
+      <p>A week-by-week roadmap with real resources, courses, and milestones. Personalized to your target role, timeline, and available hours.</p>
+    </div>
+    <div class="feature-cell">
+      <div class="feature-num">03 — Resume Builder</div>
+      <h3>Resumes That Get Read</h3>
+      <p>AI-generated, ATS-optimized resume content tailored to each role you apply for. Strong action verbs, quantified results, keywords that land interviews.</p>
+    </div>
+    <div class="feature-cell">
+      <div class="feature-num">04 — Interview Coach</div>
+      <h3>Practice Until You're Unshakeable</h3>
+      <p>Real-time mock interviews with instant AI feedback. Behavioral, situational, and technical questions for your specific target role.</p>
+    </div>
+    <div class="feature-cell">
+      <div class="feature-num">05 — Salary Intel</div>
+      <h3>Know Your Number. Own the Room.</h3>
+      <p>Market rate research for your exact role and city, plus a word-for-word negotiation script using anchoring strategy to maximize your offer.</p>
+    </div>
+    <div class="feature-cell">
+      <div class="feature-num">06 — AI Career Coach</div>
+      <h3>Ask Anything, Anytime</h3>
+      <p>Direct, personalized career strategy from an AI that knows your situation. No generic advice. Just your next move.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing" id="pricing">
+  <div class="section-eyebrow" style="text-align:center">Pricing</div>
+  <h2 class="pricing-title reveal">Simple, honest pricing.</h2>
+  <p class="pricing-sub reveal">One successful salary negotiation pays for years of Apex. Cancel anytime.</p>
+
+  <div class="pricing-grid">
+    <!-- FREE -->
+    <div class="plan reveal">
+      <div class="plan-name">Starter</div>
+      <div class="plan-price">$0</div>
+      <div class="plan-period">Free forever</div>
+      <ul class="plan-features">
+        <li>1 Gap Analysis per month</li>
+        <li>1 Roadmap generation</li>
+        <li>Basic Resume Bullets</li>
+        <li>3 Interview questions</li>
+        <li>Community access</li>
+      </ul>
+      <button class="btn-plan outline" onclick="openCheckout('free')">Get Started Free</button>
+    </div>
+
+    <!-- PRO (FEATURED) -->
+    <div class="plan featured reveal">
+      <div class="plan-badge">Most Popular</div>
+      <div class="plan-name">Pro</div>
+      <div class="plan-price">$79</div>
+      <div class="plan-period">per month · 7-day free trial</div>
+      <ul class="plan-features">
+        <li>Unlimited Gap Analyses</li>
+        <li>Unlimited Roadmaps</li>
+        <li>Full AI Resume Builder</li>
+        <li>Unlimited Interview Prep</li>
+        <li>Full Salary Intel + Negotiation Script</li>
+        <li>Unlimited AI Career Coach</li>
+        <li>Priority support</li>
+      </ul>
+      <button class="btn-plan light" onclick="openCheckout('pro')">Start Free Trial →</button>
+    </div>
+
+    <!-- ANNUAL -->
+    <div class="plan reveal">
+      <div class="plan-name">Annual Pro</div>
+      <div class="plan-price">$59</div>
+      <div class="plan-period">per month · billed $708/yr</div>
+      <ul class="plan-features">
+        <li>Everything in Pro</li>
+        <li>Save $252 vs monthly</li>
+        <li>1-on-1 strategy session (30 min)</li>
+        <li>LinkedIn profile review</li>
+        <li>Early access to new features</li>
+        <li>White-glove onboarding</li>
+        <li>Cancel anytime</li>
+      </ul>
+      <button class="btn-plan dark" onclick="openCheckout('annual')">Get Annual Plan →</button>
+    </div>
+  </div>
+
+  <div class="guarantee reveal">
+    🔒 <strong>30-day money-back guarantee.</strong> If Apex doesn't help you identify a clear path forward, we'll refund every penny.
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials">
+  <div class="section-eyebrow reveal">Proof</div>
+  <h2 class="test-title reveal">Real people.<br>Real results.</h2>
+  <div class="test-grid">
+    <div class="testimonial reveal">
+      <div class="test-stars">★★★★★</div>
+      <p class="test-quote">I went from applying blindly to getting 3 callbacks in one week. The gap analysis showed me exactly what I was missing — I fixed it in 2 weeks.</p>
+      <div class="test-author">
+        <div class="test-avatar">M</div>
+        <div><div class="test-name">Marcus T.</div><div class="test-role">Operations Manager → Director, NYC</div></div>
+      </div>
+    </div>
+    <div class="testimonial reveal">
+      <div class="test-stars">★★★★★</div>
+      <p class="test-quote">The salary negotiation script alone got me $11,000 more than the initial offer. I literally read it off my phone in the meeting. Worth 10x the price.</p>
+      <div class="test-author">
+        <div class="test-avatar">J</div>
+        <div><div class="test-name">Jasmine R.</div><div class="test-role">Coordinator → Senior Analyst, Finance</div></div>
+      </div>
+    </div>
+    <div class="testimonial reveal">
+      <div class="test-stars">★★★★★</div>
+      <p class="test-quote">I'm bilingual and the AI actually used that as a selling point throughout my resume and interview prep. It felt like it really understood my situation.</p>
+      <div class="test-author">
+        <div class="test-avatar">D</div>
+        <div><div class="test-name">Diana M.</div><div class="test-role">Customer Service → Dispatch Supervisor</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq" id="faq">
+  <div class="section-eyebrow reveal">FAQ</div>
+  <h2 class="faq-title reveal">Common questions.</h2>
+  <div id="faqList">
+    <div class="faq-item reveal" onclick="toggleFaq(this)">
+      <div class="faq-q">Do I need any tech skills to use Apex? <span class="faq-arrow">+</span></div>
+      <div class="faq-a">None at all. Apex is built for everyday professionals — not developers. If you can type and click, you can use it fully within minutes.</div>
+    </div>
+    <div class="faq-item reveal" onclick="toggleFaq(this)">
+      <div class="faq-q">How is Apex different from ChatGPT or other AI tools? <span class="faq-arrow">+</span></div>
+      <div class="faq-a">Apex is purpose-built for career acceleration with structured tools — not a blank chat box. It knows your profile, tracks your progress, and gives you actionable outputs you can use immediately: resume bullets, negotiation scripts, week-by-week plans.</div>
+    </div>
+    <div class="faq-item reveal" onclick="toggleFaq(this)">
+      <div class="faq-q">Can I cancel anytime? <span class="faq-arrow">+</span></div>
+      <div class="faq-a">Yes, absolutely. Cancel anytime with one click — no calls, no tricks. You keep access until the end of your billing period.</div>
+    </div>
+    <div class="faq-item reveal" onclick="toggleFaq(this)">
+      <div class="faq-q">What industries does Apex work for? <span class="faq-arrow">+</span></div>
+      <div class="faq-a">Apex works for any professional role — transportation, operations, finance, tech, healthcare, government, retail, and more. The AI adapts to your specific industry and target role.</div>
+    </div>
+    <div class="faq-item reveal" onclick="toggleFaq(this)">
+      <div class="faq-q">Is my data private? <span class="faq-arrow">+</span></div>
+      <div class="faq-a">Yes. Your career data is private to your account and never sold or shared. Payments are processed securely by Stripe — we never store your card details.</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FOOTER -->
+<section class="cta-footer">
+  <h2 class="cta-title reveal">The window is<br><em>open right now.</em></h2>
+  <p class="cta-body reveal">Start your free 7-day trial. No credit card required for the first 24 hours. Your next career move starts today.</p>
+  <button class="btn-cta-final reveal" onclick="openCheckout('pro')">Start Free Trial — It's Free →</button>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2026 Apex Career Technologies. All rights reserved.</p>
+  <div class="footer-links">
+    <a href="#">Privacy</a>
+    <a href="#">Terms</a>
+    <a href="#">Contact</a>
+  </div>
+</footer>
+
+<!-- CHECKOUT MODAL -->
+<div class="modal-overlay" id="checkoutModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeCheckout()">×</button>
+    <div class="modal-title">Start Your Trial</div>
+    <div class="modal-sub">7 days free — cancel anytime</div>
+
+    <div class="pay-selected-plan">
+      <div>
+        <div class="pay-plan-name" id="modalPlanName">Pro Plan</div>
+        <div style="font-size:12px;color:var(--muted)">7-day free trial, then billed monthly</div>
+      </div>
+      <div class="pay-plan-price" id="modalPlanPrice">$79/mo</div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Full Name</label>
+      <input class="form-input" id="payName" placeholder="Your full name">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <input class="form-input" id="payEmail" placeholder="your@email.com" type="email">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Card Details</label>
+      <div class="stripe-element" id="cardElement">
+        <!-- Stripe Card Element mounts here -->
+        <div style="font-size:13px;color:var(--muted);font-family:'JetBrains Mono',monospace">
+          🔒 Secure card entry powered by Stripe
+          <br><span style="font-size:11px;opacity:0.6">(Connect your Stripe account to enable live payments)</span>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-pay" id="payBtn" onclick="handlePayment()">
+      <span id="payBtnText">Start Free Trial →</span>
+    </button>
+    <div class="pay-security">🔒 Secured by Stripe · SSL encrypted · Cancel anytime</div>
+    <div class="pay-note">By starting your trial you agree to our Terms of Service. Your card will be charged after 7 days unless you cancel.</div>
+  </div>
+</div>
+
+<script>
+// ── STRIPE SETUP ──
+// Replace 'pk_test_YOUR_KEY' with your actual Stripe publishable key
+const STRIPE_KEY = 'pk_test_YOUR_PUBLISHABLE_KEY';
+// Replace with your actual Stripe Price IDs
+const PRICE_IDS = {
+  pro: 'price_YOUR_PRO_PRICE_ID',
+  annual: 'price_YOUR_ANNUAL_PRICE_ID'
+};
+
+let stripe, cardElement;
+try {
+  stripe = Stripe(STRIPE_KEY);
+  const elements = stripe.elements();
+  cardElement = elements.create('card', {
+    style: {
+      base: { fontFamily: 'Outfit, sans-serif', fontSize: '14px', color: '#0e0e0e' }
+    }
+  });
+  cardElement.mount('#cardElement');
+  cardElement.on('focus', () => document.getElementById('cardElement').classList.add('focused'));
+  cardElement.on('blur', () => document.getElementById('cardElement').classList.remove('focused'));
+} catch(e) {
+  // Stripe not configured yet — demo mode
+}
+
+// ── MODAL ──
+let selectedPlan = 'pro';
+function openCheckout(plan) {
+  selectedPlan = plan;
+  if (plan === 'free') {
+    // redirect to app directly
+    window.location.href = 'career-platform.html';
+    return;
+  }
+  const plans = {
+    pro: { name: 'Pro Plan', price: '$79/mo' },
+    annual: { name: 'Annual Pro', price: '$708/yr' }
+  };
+  document.getElementById('modalPlanName').textContent = plans[plan].name;
+  document.getElementById('modalPlanPrice').textContent = plans[plan].price;
+  document.getElementById('checkoutModal').classList.add('open');
+}
+function closeCheckout() {
+  document.getElementById('checkoutModal').classList.remove('open');
+}
+document.getElementById('checkoutModal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeCheckout();
+});
+
+// ── PAYMENT ──
+async function handlePayment() {
+  const name = document.getElementById('payName').value.trim();
+  const email = document.getElementById('payEmail').value.trim();
+  if (!name || !email) { alert('Please fill in your name and email.'); return; }
+
+  const btn = document.getElementById('payBtn');
+  const btnText = document.getElementById('payBtnText');
+  btn.disabled = true;
+  btnText.innerHTML = '<span class="ld"><span></span><span></span><span></span></span> Processing...';
+
+  if (!stripe || STRIPE_KEY === 'pk_test_YOUR_PUBLISHABLE_KEY') {
+    // Demo mode — simulate success
+    setTimeout(() => {
+      btnText.innerHTML = '✓ Success! Redirecting to your dashboard...';
+      btn.style.background = '#1a6b45';
+      setTimeout(() => { window.location.href = 'career-platform.html'; }, 1500);
+    }, 1800);
+    return;
+  }
+
+  // Live Stripe integration
+  try {
+    // 1. Create payment method
+    const { paymentMethod, error } = await stripe.createPaymentMethod({
+      type: 'card', card: cardElement,
+      billing_details: { name, email }
+    });
+    if (error) { alert(error.message); btn.disabled = false; btnText.textContent = 'Start Free Trial →'; return; }
+
+    // 2. Call your backend to create subscription
+    // Your backend endpoint should:
+    // - Create/retrieve Stripe customer
+    // - Create subscription with trial_period_days: 7
+    // - Return client_secret for confirmation
+    const res = await fetch('/api/create-subscription', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, paymentMethodId: paymentMethod.id, priceId: PRICE_IDS[selectedPlan] })
+    });
+    const data = await res.json();
+
+    if (data.clientSecret) {
+      const { error: confirmError } = await stripe.confirmCardPayment(data.clientSecret);
+      if (confirmError) { alert(confirmError.message); btn.disabled = false; btnText.textContent = 'Try Again'; return; }
+    }
+
+    btnText.innerHTML = '✓ Welcome to Apex!';
+    btn.style.background = '#1a6b45';
+    setTimeout(() => { window.location.href = 'career-platform.html'; }, 1500);
+  } catch(e) {
+    alert('Payment error. Please try again.');
+    btn.disabled = false;
+    btnText.textContent = 'Start Free Trial →';
+  }
+}
+
+// ── FAQ ──
+function toggleFaq(el) {
+  const a = el.querySelector('.faq-a');
+  const arrow = el.querySelector('.faq-arrow');
+  const isOpen = a.classList.contains('open');
+  document.querySelectorAll('.faq-a').forEach(x => x.classList.remove('open'));
+  document.querySelectorAll('.faq-arrow').forEach(x => { x.classList.remove('open'); x.textContent = '+'; });
+  if (!isOpen) { a.classList.add('open'); arrow.classList.add('open'); arrow.textContent = '+'; }
+}
+
+// ── SCROLL REVEAL ──
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>
